@@ -33,6 +33,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final _controller = TextEditingController();
   final List todoList = [
     ['Eat food', true],
     ['Get stressed', false],
@@ -45,8 +46,31 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
+  void saveTodo() {
+    setState(() {
+      todoList.add([_controller.text, false]);
+    });
+    _controller.clear();
+    Navigator.of(context).pop();
+  }
+
   createNewTask() {
-    return const DialogBox();
+    return showDialog(
+      context: context,
+      builder: ((context) => DialogBox(
+            controller: _controller,
+            onSave: saveTodo,
+            onCancel: () {
+              Navigator.of(context).pop();
+            },
+          )),
+    );
+  }
+
+  deleteTask(int index) {
+    setState(() {
+      todoList.removeAt(index);
+    });
   }
 
   @override
@@ -68,6 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
             return TodoTile(
                 isCompleted: todoList[index][1],
                 onChanged: (value) => checkBoxChanged(value, index),
+                deleteTask: (context) => deleteTask(index),
                 taskName: todoList[index][0]);
           }),
         ));
